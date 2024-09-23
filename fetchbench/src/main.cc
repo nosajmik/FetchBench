@@ -11,6 +11,7 @@
 #include "logger.hh"
 #include "calibrate.hh"
 #include "cacheutils.hh"
+#include "common.h"
 
 using json11::Json;
 using std::string;
@@ -20,7 +21,7 @@ using std::make_unique;
 int main(int argc, char** argv) {
 	// === parse command line options ===
 	// (-c) CPU core to move the process to
-	int opt_target_cpu = 0;
+	int opt_target_cpu = 5;
 	// (-e) CPU core to move the counter thread to
 	int opt_ctr_cpu = 1;
 	// (-f) Flush+Reload Threshold
@@ -89,6 +90,9 @@ int main(int argc, char** argv) {
 	// Pin process to first CPU core
 	L::info("Pinning process to CPU %d\n", opt_target_cpu);
 	pin_process_to_cpu(0, opt_target_cpu);
+
+	// Enable MSR access
+	enable_pmu();
 
 	// Initialize counter thread (if enabled and necessary on the platform)
 	clock_init(opt_ctr_cpu);

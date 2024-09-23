@@ -21,10 +21,8 @@ size_t access_measure(uint8_t* ptr1, uint8_t* ptr2, size_t repeat, size_t median
 	size_t j = 0;
 
 	for(size_t i = 0; i < repeat; i++) {
-		for(size_t f = 0; f < 512; f += CACHE_LINE_SIZE) {
-			flush(ptr1 + f);
-			flush(ptr2 + f);
-		}
+		flush(ptr1);
+		flush(ptr2);
 		mfence();
 
 		maccess(ptr1);
@@ -34,13 +32,11 @@ size_t access_measure(uint8_t* ptr1, uint8_t* ptr2, size_t repeat, size_t median
 		size_t end = rdtsc();
 		size_t delta = end - start;
 
-		// printf("%s: %zu\n", label.c_str(), delta);
+		// printf("%zu\n", delta);
 		if(median && (delta < median/1.25 || delta > 1.25*median))
 			continue;
 		sum += delta;
 		j++;
-
-		mfence();
 	}
 	avg = sum / j;
 	return avg;
@@ -57,7 +53,7 @@ size_t calibrate_thresh(Mapping const& mapping) {
 	assert(mapping.size >= 2 * PAGE_SIZE);
 
 	// find median
-	size_t repeat = 100000;
+	size_t repeat = 100;
 	size_t thresh;
 	flush_mapping(mapping);
 	size_t hit_median = access_measure(mapping.base_addr + 1024, mapping.base_addr + 1024, repeat, 0);
@@ -66,7 +62,7 @@ size_t calibrate_thresh(Mapping const& mapping) {
 	L::debug("Median: Hit(%zu) Miss(%zu)\n", hit_median, miss_median);
 	
 	// use median to remove outliers
-	repeat = 10000000;
+	repeat = 100;
 	flush_mapping(mapping);
 	size_t hit = access_measure(mapping.base_addr + 1024, mapping.base_addr + 1024, repeat, hit_median);
 	flush_mapping(mapping);
