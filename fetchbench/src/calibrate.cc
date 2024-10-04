@@ -53,7 +53,9 @@ size_t calibrate_thresh(Mapping const& mapping) {
 	assert(mapping.size >= 2 * PAGE_SIZE);
 
 	// find median
-	size_t repeat = 100;
+	// For X Elite, if this ends up skewing the threshold, either
+	// set to 100 or manually specify cache hit threshold as 100 cycles.
+	size_t repeat = 100000;
 	size_t thresh;
 	flush_mapping(mapping);
 	size_t hit_median = access_measure(mapping.base_addr + 1024, mapping.base_addr + 1024, repeat, 0);
@@ -62,7 +64,7 @@ size_t calibrate_thresh(Mapping const& mapping) {
 	L::debug("Median: Hit(%zu) Miss(%zu)\n", hit_median, miss_median);
 	
 	// use median to remove outliers
-	repeat = 100;
+	repeat = 100000;
 	flush_mapping(mapping);
 	size_t hit = access_measure(mapping.base_addr + 1024, mapping.base_addr + 1024, repeat, hit_median);
 	flush_mapping(mapping);
