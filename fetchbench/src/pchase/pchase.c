@@ -7,6 +7,7 @@
 #include <sys/mman.h>
 
 #include <time.h>
+#include "../common.h"
 
 
 #ifdef COUNTER_THREAD
@@ -117,6 +118,9 @@ int main(int argc, char** argv){
     #endif /* COUNTER_THREAD */
 
     srand(time(NULL));
+
+    // Enable PMU access
+    enable_pmu();
 
     entry_array = malloc(sizeof(struct entry) * ENTRIES_COUNT);
     memset(entry_array, 'A', sizeof(struct entry) * ENTRIES_COUNT);

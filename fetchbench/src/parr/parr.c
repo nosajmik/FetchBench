@@ -7,6 +7,7 @@
 #include <sys/mman.h>
 
 #include <time.h>
+#include "../common.h"
 
 
 #ifdef COUNTER_THREAD
@@ -322,6 +323,9 @@ int main(int argc, char** argv){
     
     // seed random
     rand_seed = time(NULL);
+
+    // Enable MSR access
+    enable_pmu();
     
     printf("; seed: %zu\n", rand_seed);
     
