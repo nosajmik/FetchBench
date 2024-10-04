@@ -322,6 +322,25 @@ int main(int argc, char** argv){
     
     // seed random
     rand_seed = time(NULL);
+
+    /*
+        From userspace:
+        Enable PMU #0 (FIXED_CYCLES).
+        SYS_APL_PMCR0_EL1 bit 0 nust be set.
+        ([7:0] Counter enable for PMC #7-0)
+    */
+    uint64_t PMCR0_EL1;
+    asm volatile("mrs %0, S3_1_c15_c0_0" : "=r" (PMCR0_EL1));
+    PMCR0_EL1 |= 1ULL << 0;
+    asm volatile("msr S3_1_c15_c0_0, %0; isb sy" :: "r" (PMCR0_EL1));
+
+    /*
+        SYS_APL_PMCR1_EL1: bit 8 must be set
+        to enable EL0 A64 counts on PMU #0.
+        ([15:8] EL0 A64 enable PMC #0-7)
+    */
+    uint64_t PMCR1_EL1 = 1ULL << 8;
+    asm volatile("msr S3_1_c15_c1_0, %0; isb sy" :: "r" (PMCR1_EL1));
     
     printf("; seed: %zu\n", rand_seed);
     
