@@ -104,7 +104,7 @@ int uint64_t_compare(const void* _a, const void* _b){
 }
 
 void access_pages(void* arr, uint64_t size){
-     for(uint64_t i = 0; i <= size; i += 4096){
+     for(uint64_t i = 0; i < size; i += 4096){
          void* target = (void*)&arr[i / sizeof(uint64_t)];
          maccess(target);
      }
